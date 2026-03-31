@@ -1,13 +1,935 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Waleed Hassan — Software Excellence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root{
+  --bg:#080808; --bg2:#0f0f0d; --glass:rgba(255,255,255,0.05);
+  --amber:#c8601a; --amber2:#e8893a; --amber3:#f0aa60;
+  --neon-border:rgba(232,137,58,0.25);
+  --text:#f0ece6; --muted:#9a8870; --muted2:#5a4830;
+  --border:rgba(255,255,255,0.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+/* 32px rhythm */
+.r8{padding-top:2rem;padding-bottom:2rem;}
+.r16{padding-top:4rem;padding-bottom:4rem;}
+.r24{padding-top:6rem;padding-bottom:6rem;}
+/* Glass */
+.glass{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--neon-border);}
+.glass-dark{background:rgba(0,0,0,0.4);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--neon-border);}
+/* Neon glow */
+.neon-amber{box-shadow:0 0 24px rgba(232,137,58,0.15),inset 0 0 24px rgba(232,137,58,0.03);}
+/* Fonts */
+.bebas{font-family:'Bebas Neue',sans-serif;}
+.mono{font-family:'DM Mono',monospace;}
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes marqueeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+@keyframes spinCCW{to{transform:rotate(-360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes scanUp{0%{transform:translateY(100%);opacity:0.7}100%{transform:translateY(-100%);opacity:0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.anim-fade-up{animation:fadeUp 0.65s ease forwards;}
+.anim-fade{animation:fadeIn 0.5s ease forwards;}
+/* Page transition */
+.page-enter{animation:fadeUp 0.4s ease forwards;}
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--amber);border-radius:2px;}
+</style>
 </head>
 <body>
-    <script>
-        const PHOTO = "https://lh3.googleusercontent.com/d/1bhddEbfLwu1yzW08ZcqadKPo8pOWwqQy";
-    </script>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const PHOTO = "https://lh3.googleusercontent.com/d/1iLnUD0NcPAAh3Y5dcDsfcbM3T9UaDPy0";
+
+// ── DATA ───────────────────────────────────────────────────────────
+const JOBS = [
+  {
+    period:"01/2022 — 09/2024", co:"ITRoots", sub:"Digital Geography for IT KSA",
+    loc:"Riyadh, KSA & Egypt", role:"Software Testing Manager & Senior Business Analyst — Ministry of Commerce KSA",
+    bullets:[
+      "Evaluated current processes and recommended improvements aligned with organizational strategy and technology",
+      "Led testing efforts — developing test plans and writing test scripts for the testing team",
+      "Converted roadmap features into smaller user stories with clear, well-structured business requirements",
+      "Elicited and documented business requirements through workshops, interviews, and surveys — translating into BRD & SRS",
+      "Developed comprehensive test plans and strategies (objectives, scope, success criteria) aligned with requirements",
+      "Mapped business processes to identify bottlenecks and proposed optimized workflows",
+      "Supported Project Management by tracking progress, managing risks, ensuring on-schedule delivery",
+      "Performed API Testing using Postman and Swagger",
+      "Created Requirement Traceability Matrix (RTM)",
+      "Utilized Selenium for regression testing; defect tracking in MTM and JIRA",
+      "Conducted User Acceptance Tests (UAT) with clients to ensure all requirements were met",
+      "Successfully negotiated and prioritized conflicting stakeholder demands",
+      "Managed defect lifecycle — logging, categorizing (severity/impact), and tracking defects to resolution",
+    ],
+    badges:["Selenium","Postman","Swagger","JIRA","MTM","RTM","BRD/SRS","UAT","Shift-Left"],
+  },
+  {
+    period:"01/2011 — 12/2016", co:"OSN", sub:"Media & Broadcasting",
+    loc:"Dubai, UAE", role:"Senior Software Tester & Business Analyst",
+    bullets:[
+      "Developed test coverage matrices to maximize testing efficiency",
+      "Led testing efforts including developing test plans and writing test scripts for the testing team",
+      "Updated Automation Tool (Selenium, TestNG) for regression testing",
+      "Updated defect tracking tools — MTM, Trello, and JIRA",
+      "Evaluated current processes and made recommendations for process improvement",
+      "Identified and established scope and parameters of requirements analysis",
+      "Conducted User Acceptance Tests (UAT) with clients",
+      "Performed System Integration Testing (SIT) for functional changes; published test results",
+      "Managed UAT as required for respective functional areas",
+      "Created wireframes and developed Use Cases, BRDs, SRS, and RTM",
+      "Managed requirements and functional design through entire lifecycle",
+      "Tracked and fully documented changes for functional and business specifications",
+    ],
+    badges:["Selenium","TestNG","MTM","Trello","JIRA","SIT","UAT","BRD","SRS","Wireframes","RTM"],
+  },
+  {
+    period:"01/2007 — 12/2011", co:"SALIK (RTA)", sub:"Road & Transport Authority",
+    loc:"Dubai, UAE", role:"Software Tester — Road Toll & Transport Authority Systems",
+    bullets:[
+      "Performed database testing and end-to-end system testing for 'As Is' implementation",
+      "Analyzed Business Requirements and SRS to gather product knowledge",
+      "Conducted testing for Web, Mobile, and Database applications",
+      "Conducted Functional and Non-Functional testing — black box and white box methodologies",
+      "Analyzed test results to identify bugs and improve the testing process",
+      "Reviewed all phases of SDLC (Functional, Integration, Performance, Quality Metrics)",
+      "Developed testing plans and wrote test scripts for the testing team",
+      "Conducted User Acceptance Tests (UAT) with clients",
+      "Performed API Testing using Postman and Swagger",
+      "Executed System Integration Testing (SIT) for functional changes",
+      "Developed test coverage matrices to maximize efficiency and minimize test cases",
+      "Supported users on change control; provided training and user manuals",
+    ],
+    badges:["Black Box","White Box","Postman","Swagger","SIT","UAT","DB Testing","Web","Mobile","SDLC"],
+  },
+];
+
+const MARQUEE = [
+  {icon:"🏛️",label:"KSA Gov Sector",gov:true},{icon:"🇦🇪",label:"UAE Expertise",gov:true},
+  {icon:"🧪",label:"Manual Testing"},{icon:"📋",label:"Business Analysis"},
+  {icon:"🤖",label:"Test Automation"},{icon:"🇪🇬",label:"Egypt Projects",gov:true},
+  {icon:"🔌",label:"API Testing"},{icon:"📊",label:"UAT Management"},
+  {icon:"⚡",label:"Shift-Left QA"},{icon:"🔁",label:"Agile / Scrum"},
+  {icon:"📐",label:"UML Diagrams"},{icon:"🗄️",label:"DB Testing"},
+];
+
+const SKILLS = [
+  {title:"Manual Testing",items:["Test Planning","Test Case Design","Defect Lifecycle","SIT","UAT","Regression"],cls:"amber"},
+  {title:"API & Backend",items:["Postman","Swagger","API Integration","Database Testing"],cls:"blue"},
+  {title:"Databases",items:["MS SQL Server","SQL / PL-SQL","MS Access"],cls:"green"},
+  {title:"Automation & Tools",items:["Selenium","TestNG","JIRA","MTM","Trello","CI/CD"],cls:"amber"},
+  {title:"Business Analysis",items:["SRS · BRD","UML Diagrams","RTM","User Stories","Agile / Scrum"],cls:"amber"},
+];
+
+// ── HOOKS ──────────────────────────────────────────────────────────
+function useReveal(threshold=0.1){
+  const ref = useRef(null);
+  const [visible,setVisible] = useState(false);
+  useEffect(()=>{
+    const obs = new IntersectionObserver(([e])=>{
+      if(e.isIntersecting){setVisible(true);obs.disconnect();}
+    },{threshold});
+    if(ref.current) obs.observe(ref.current);
+    return ()=>obs.disconnect();
+  },[]);
+  return [ref,visible];
+}
+
+function RevealBox({children,delay=0,className=""}){
+  const [ref,vis] = useReveal();
+  return (
+    <div ref={ref} className={className} style={{
+      opacity: vis?1:0, transform: vis?"translateY(0)":"translateY(28px)",
+      transition:`opacity 0.65s ease ${delay}ms, transform 0.65s ease ${delay}ms`
+    }}>{children}</div>
+  );
+}
+
+// ── APP ───────────────────────────────────────────────────────────
+function App(){
+  const [page, setPage] = useState("profile");
+  const [transitioning, setTransitioning] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+
+  const navigate = (target) => {
+    if(target===page) return;
+    setTransitioning(true);
+    setTimeout(()=>{
+      setPage(target);
+      setTransitioning(false);
+      window.scrollTo(0,0);
+    },380);
+  };
+
+  return (
+    <div style={{minHeight:"100vh",background:"#080808",color:"#f0ece6"}}>
+      <Nav page={page} navigate={navigate}/>
+      <div style={{
+        opacity: transitioning?0:1,
+        transform: transitioning?"translateY(20px)":"translateY(0)",
+        transition:"opacity 0.38s ease,transform 0.38s ease"
+      }}>
+        {page==="profile"
+          ? <ProfilePage navigate={navigate}/>
+          : <CareerPage navigate={navigate}/>
+        }
+      </div>
+      <FooterBar avatarOpen={avatarOpen} setAvatarOpen={setAvatarOpen} page={page} navigate={navigate}/>
+    </div>
+  );
+}
+
+// ── NAV ───────────────────────────────────────────────────────────
+function Nav({page,navigate}){
+  const [scrolled,setScrolled] = useState(false);
+  useEffect(()=>{
+    const h=()=>setScrolled(window.scrollY>30);
+    window.addEventListener("scroll",h);
+    return()=>window.removeEventListener("scroll",h);
+  },[]);
+  return (
+    <nav style={{
+      position:"fixed",top:0,left:0,right:0,zIndex:100,
+      display:"flex",alignItems:"center",justifyContent:"space-between",
+      padding:"18px 48px",
+      background: scrolled?"rgba(8,8,8,0.95)":"rgba(8,8,8,0.6)",
+      backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",
+      borderBottom:"1px solid rgba(255,255,255,0.06)",
+      transition:"background 0.3s ease"
+    }}>
+      <button onClick={()=>navigate("profile")} style={{
+        fontFamily:"'Bebas Neue',sans-serif",fontSize:"1.4rem",
+        letterSpacing:"3px",color:"#f0ece6",lineHeight:1,
+        background:"none",border:"none",cursor:"pointer",display:"flex",alignItems:"baseline",gap:"8px"
+      }}>
+        <span style={{color:"#f0ece6"}}>WALEED</span>
+        <span style={{color:"#e8893a"}}>HASSAN</span>
+      </button>
+
+      <div style={{display:"flex",alignItems:"center",gap:"36px"}}>
+        {[["profile","Profile"],["career","Experience"]].map(([p,label])=>(
+          <button key={p} onClick={()=>navigate(p)} style={{
+            fontFamily:"'Inter',sans-serif",fontWeight:500,fontSize:"0.88rem",
+            color: page===p?"#e8893a":"rgba(240,236,230,0.5)",
+            background:"none",border:"none",cursor:"pointer",
+            position:"relative",transition:"color 0.25s",paddingBottom:"4px",
+          }}>
+            {label}
+            <span style={{
+              position:"absolute",bottom:0,left:0,right:0,height:"1px",
+              background:"#c8601a",
+              transform: page===p?"scaleX(1)":"scaleX(0)",
+              transformOrigin:"left",transition:"transform 0.3s ease"
+            }}/>
+          </button>
+        ))}
+      </div>
+
+      <a href="mailto:waleeedsaied@gmail.com" style={{
+        fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:"0.82rem",
+        color:"#f0ece6",textDecoration:"none",
+        border:"1px solid rgba(255,255,255,0.22)",
+        padding:"9px 22px",borderRadius:"100px",
+        transition:"all 0.3s",letterSpacing:"0.3px"
+      }}
+      onMouseEnter={e=>{e.target.style.background="rgba(255,255,255,0.08)";e.target.style.borderColor="rgba(255,255,255,0.5)";}}
+      onMouseLeave={e=>{e.target.style.background="transparent";e.target.style.borderColor="rgba(255,255,255,0.22)";}}>
+        Get in Touch
+      </a>
+    </nav>
+  );
+}
+
+// ── PROFILE PAGE ──────────────────────────────────────────────────
+function ProfilePage({navigate}){
+  return (
+    <>
+      <HeroSection navigate={navigate}/>
+      <MarqueeBar/>
+      <AboutSection/>
+      <WhatIBring/>
+      <ProjectsSection/>
+      <EducationSection/>
+    </>
+  );
+}
+
+// ── HERO ──────────────────────────────────────────────────────────
+function HeroSection({navigate}){
+  const [imgHover,setImgHover] = useState(false);
+  return (
+    <section style={{
+      position:"relative",width:"100vw",height:"100vh",minHeight:680,
+      overflow:"hidden",
+      background:"radial-gradient(ellipse 70% 90% at 58% 35%, #291204 0%, #150900 40%, #060402 100%)"
+    }}>
+      {/* EXCELLENCE watermark — spec: text-[30vw] low opacity */}
+      <div className="bebas" style={{
+        position:"absolute",top:"50%",left:"50%",
+        transform:"translate(-50%,-48%)",
+        fontSize:"clamp(12rem,30vw,34rem)",
+        letterSpacing:"-4px",
+        color:"rgba(240,236,230,0.035)",
+        whiteSpace:"nowrap",lineHeight:1,
+        pointerEvents:"none",userSelect:"none",zIndex:1
+      }}>EXCELLENCE</div>
+
+      {/* Warm glow */}
+      <div style={{
+        position:"absolute",top:"-5%",left:"45%",transform:"translateX(-50%)",
+        width:700,height:700,zIndex:2,pointerEvents:"none",
+        background:"radial-gradient(ellipse 55% 65% at 50% 50%,rgba(215,95,15,0.52) 0%,rgba(160,55,8,0.28) 38%,transparent 72%)"
+      }}/>
+
+      {/* Photo — grayscale-to-color on hover */}
+      <div style={{position:"absolute",bottom:0,left:"50%",transform:"translateX(-38%)",height:"94%",zIndex:3}}
+        onMouseEnter={()=>setImgHover(true)} onMouseLeave={()=>setImgHover(false)}>
+        <img src={PHOTO} alt="Waleed Hassan" style={{
+          height:"100%",width:"auto",objectFit:"cover",objectPosition:"top center",display:"block",
+          filter: imgHover
+            ? "grayscale(0%) contrast(1.05) brightness(1)"
+            : "grayscale(100%) contrast(1.2) brightness(0.92)",
+          transition:"filter 0.6s ease",
+          WebkitMaskImage:"linear-gradient(to bottom,black 55%,rgba(0,0,0,0.3) 80%,transparent 100%)",
+          maskImage:"linear-gradient(to bottom,black 55%,rgba(0,0,0,0.3) 80%,transparent 100%)"
+        }}/>
+      </div>
+
+      {/* Bottom fade */}
+      <div style={{
+        position:"absolute",bottom:0,left:0,right:0,height:240,zIndex:4,pointerEvents:"none",
+        background:"linear-gradient(to top,#080808 0%,transparent 100%)"
+      }}/>
+
+      {/* Left tagline — Bebas Neue massive display */}
+      <div style={{position:"absolute",left:48,bottom:96,zIndex:10,maxWidth:520,
+        animation:"fadeUp 0.8s ease 0.3s both"}}>
+        {/* Main headline — text-9xl equivalent */}
+        <div style={{
+          fontFamily:"'Bebas Neue',sans-serif",
+          fontSize:"clamp(3.2rem,6.5vw,6rem)",
+          lineHeight:0.92,letterSpacing:"1px",
+          color:"#f0ece6",marginBottom:14
+        }}>
+          <span style={{display:"block"}}>Global Standards.</span>
+          <span style={{display:"block",color:"#e8893a"}}>Software Excellence.</span>
+        </div>
+        {/* Sub-descriptor — Inter body */}
+        <p style={{
+          fontFamily:"'Inter',sans-serif",fontSize:"0.88rem",lineHeight:1.72,
+          color:"rgba(240,236,230,0.55)",fontWeight:400,maxWidth:400,
+          borderLeft:"2px solid rgba(200,96,26,0.5)",paddingLeft:14
+        }}>
+          Mastering the full SDLC/STLC lifecycle — from eliciting high-level requirements to final UAT sign-off in high-security government environments.
+        </p>
+      </div>
+
+      {/* Right CTAs */}
+      <div style={{position:"absolute",right:56,bottom:118,zIndex:10,display:"flex",flexDirection:"column",gap:12,alignItems:"flex-end",
+        animation:"fadeUp 0.8s ease 0.5s both"}}>
+        <a href="mailto:waleeedsaied@gmail.com" style={{
+          display:"inline-flex",alignItems:"center",justifyContent:"center",
+          background:"#ffffff",color:"#080808",
+          fontFamily:"'Inter',sans-serif",fontWeight:800,fontSize:"0.95rem",
+          padding:"18px 40px",borderRadius:"12px",textDecoration:"none",
+          whiteSpace:"nowrap",letterSpacing:"-0.2px",
+          boxShadow:"0 0 0 1px rgba(255,255,255,0.12),0 0 50px 12px rgba(210,95,15,0.5),0 24px 72px rgba(0,0,0,0.55)",
+          transition:"all 0.3s"
+        }}>Book a free call</a>
+
+        <button onClick={()=>navigate("career")} style={{
+          display:"inline-flex",alignItems:"center",gap:8,
+          fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:"0.88rem",
+          color:"#fff",background:"#c8601a",
+          border:"none",cursor:"pointer",padding:"13px 24px",borderRadius:"8px",
+          boxShadow:"0 0 24px rgba(200,96,26,0.4)",
+          transition:"all 0.3s"
+        }}>VIEW CAREER HISTORY <span>→</span></button>
+      </div>
+    </section>
+  );
+}
+
+// ── MARQUEE ───────────────────────────────────────────────────────
+function MarqueeBar(){
+  const doubled=[...MARQUEE,...MARQUEE];
+  return(
+    <div style={{overflow:"hidden",borderTop:"1px solid rgba(255,255,255,0.07)",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"#0f0f0d"}}>
+      <div style={{display:"flex",width:"max-content",animation:"marqueeScroll 35s linear infinite"}}>
+        {doubled.map((item,i)=>(
+          <div key={i} style={{
+            display:"flex",alignItems:"center",gap:11,padding:"16px 28px",
+            borderRight:"1px solid rgba(255,255,255,0.07)",flexShrink:0,
+            cursor:"default",transition:"background 0.3s",
+          }}>
+            <div style={{
+              width:34,height:34,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",
+              fontSize:"0.9rem",flexShrink:0,
+              background:item.gov?"rgba(200,96,26,0.22)":"rgba(200,96,26,0.1)",
+              border:`1px solid ${item.gov?"rgba(200,96,26,0.45)":"rgba(200,96,26,0.2)"}`
+            }}>{item.icon}</div>
+            <span style={{
+              fontFamily:"'Inter',sans-serif",fontWeight:600,fontSize:"0.9rem",
+              whiteSpace:"nowrap",color:item.gov?"#e8893a":"rgba(240,236,230,0.68)"
+            }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── ABOUT ─────────────────────────────────────────────────────────
+function AboutSection(){
+  const [modalOpen,setModalOpen] = useState(false);
+  const modalRef = useRef(null);
+
+  useEffect(()=>{
+    const h=(e)=>{ if(modalOpen && modalRef.current && !modalRef.current.contains(e.target)) setModalOpen(false); };
+    const k=(e)=>{ if(e.key==="Escape") setModalOpen(false); };
+    document.addEventListener("mousedown",h);
+    document.addEventListener("keydown",k);
+    return()=>{document.removeEventListener("mousedown",h);document.removeEventListener("keydown",k);};
+  },[modalOpen]);
+
+  return(
+    <section style={{padding:"96px 52px",background:"#0f0f0d",position:"relative",zIndex:1}}>
+      <div style={{maxWidth:1280,margin:"0 auto"}}>
+        <RevealBox>
+          <p style={{fontFamily:"'DM Mono',monospace",fontSize:"0.68rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:12,display:"flex",alignItems:"center",gap:12}}>
+            <span style={{width:24,height:1,background:"#e8893a",display:"inline-block"}}/>01 — Executive Summary
+          </p>
+          <h2 className="bebas" style={{fontSize:"clamp(3rem,6vw,5.5rem)",lineHeight:0.94,color:"#f0ece6",marginBottom:52}}>
+            Professional <span style={{color:"#e8893a"}}>Profile</span>
+          </h2>
+        </RevealBox>
+
+        {/* Glass grid — spec: 320px max-width cards, 32px padding */}
+        <RevealBox delay={100} style={{display:"grid",gridTemplateColumns:"1.25fr 1fr",gap:1,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(232,137,58,0.15)"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1.25fr 1fr",gap:1,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(232,137,58,0.15)"}}>
+          {/* Left col */}
+          <div className="glass neon-amber" style={{padding:52}}>
+            <p className="mono" style={{fontSize:"0.65rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:18}}>Executive Summary</p>
+            <p style={{fontSize:"1rem",lineHeight:1.84,color:"#9a8870",marginBottom:14}}>
+              Senior QA and Business Analysis professional with <strong style={{color:"#f0ece6"}}>15 years of comprehensive experience</strong> in software testing excellence. Expert in <strong style={{color:"#f0ece6"}}>KSA, UAE &amp; Egypt Government Sectors</strong>, specializing in manual testing, SIT, UAT, and mission-critical workflow validation.
+            </p>
+            <p style={{fontSize:"1rem",lineHeight:1.84,color:"#9a8870",marginBottom:14}}>
+              Proven track record ensuring <strong style={{color:"#f0ece6"}}>regulatory compliance</strong>, managing complex test cycles, and bridging technical development with business strategy.
+            </p>
+            <div style={{borderLeft:"2px solid #c8601a",padding:"14px 20px",background:"rgba(200,96,26,0.05)",marginBottom:14}}>
+              <p style={{fontSize:"0.95rem",lineHeight:1.78,color:"#b89878",fontStyle:"italic"}}>
+                <strong style={{color:"#f0ece6"}}>This comprehensive perspective</strong> and deep expertise in the government domain are significant assets for ensuring high-quality, compliant software delivery.
+              </p>
+            </div>
+            <p style={{fontSize:"1rem",lineHeight:1.84,color:"#9a8870"}}>
+              My expertise spans <strong style={{color:"#f0ece6"}}>Strategic Planning &amp; Documentation</strong> via SRS, BRD, UML; <strong style={{color:"#f0ece6"}}>Comprehensive Testing Leadership</strong>; and <strong style={{color:"#f0ece6"}}>Team Leadership</strong> fostering continuous improvement.
+            </p>
+          </div>
+
+          {/* Right col — Skills Matrix glass card */}
+          <div className="glass neon-amber" style={{padding:52}}>
+            <p className="mono" style={{fontSize:"0.65rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:24}}>Technical Skills Matrix</p>
+            {SKILLS.map((block,i)=>(
+              <div key={i} style={{marginBottom:20,paddingBottom:20,borderBottom:i<SKILLS.length-1?"1px solid rgba(255,255,255,0.07)":"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:10}}>
+                  <span style={{width:5,height:5,borderRadius:"50%",background:"#e8893a",boxShadow:"0 0 8px #c8601a",flexShrink:0}}/>
+                  <span className="bebas" style={{fontSize:"1rem",letterSpacing:"1.5px",color:"#f0ece6"}}>{block.title}</span>
+                </div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
+                  {block.items.map(tag=>(
+                    <span key={tag} className="mono" style={{
+                      fontSize:"0.65rem",padding:"5px 12px",textTransform:"uppercase",letterSpacing:"0.5px",
+                      border:`1px solid ${block.cls==="blue"?"rgba(100,160,255,0.22)":block.cls==="green"?"rgba(80,200,120,0.22)":"rgba(200,96,26,0.22)"}`,
+                      color:block.cls==="blue"?"#82aaf0":block.cls==="green"?"#7acc90":"#c89258",
+                      transition:"all 0.2s",cursor:"default"
+                    }}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          </div>
+        </RevealBox>
+      </div>
+    </section>
+  );
+}
+
+// ── WHAT I BRING ──────────────────────────────────────────────────
+function WhatIBring(){
+  const items=[
+    {n:"01",t:"Government Domain Mastery",b:"Navigating KSA, UAE, Egypt & Kuwait regulatory frameworks. Ministry of Commerce, RTA, SWCC, and GEOSA project delivery."},
+    {n:"02",t:"Shift-Left QA Strategy",b:"Proactively decomposing SRS/BRD and applying Static Testing to detect ambiguities before they reach development."},
+    {n:"03",t:"Dual QA + BA Perspective",b:"Bridging business requirements and technical delivery — authoring BRDs, designing test strategies, mentoring teams."},
+    {n:"04",t:"Agile & SDLC Proficiency",b:"Deep practical understanding of SDLC, STLC, and Bug Life Cycle. Sprint integration, retrospectives, continuous delivery."},
+    {n:"05",t:"Test Automation Leadership",b:"Scalable Selenium/TestNG frameworks, CI/CD pipeline integration, maximizing web and mobile test coverage."},
+    {n:"06",t:"Stakeholder Collaboration",b:"Facilitating workshops, interviews, and structured requirement-gathering between technical and non-technical stakeholders."},
+  ];
+  return(
+    <section style={{padding:"96px 52px",background:"#f0ece6",color:"#080808"}}>
+      <div style={{maxWidth:1280,margin:"0 auto"}}>
+        <RevealBox>
+          <p style={{fontFamily:"'DM Mono',monospace",fontSize:"0.68rem",letterSpacing:"3px",textTransform:"uppercase",color:"#c8601a",marginBottom:12,display:"flex",alignItems:"center",gap:12}}>
+            <span style={{width:24,height:1,background:"#c8601a",display:"inline-block"}}/>02 — Value Proposition
+          </p>
+          <h2 className="bebas" style={{fontSize:"clamp(3rem,6vw,5.5rem)",lineHeight:0.94,color:"#080808",marginBottom:52}}>
+            What I <span style={{color:"#c8601a"}}>Bring</span>
+          </h2>
+        </RevealBox>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:1,background:"rgba(0,0,0,0.1)",border:"1px solid rgba(0,0,0,0.1)"}}>
+          {items.map((item,i)=>(
+            <RevealBox key={i} delay={i*60}>
+              <div style={{padding:"40px 32px",background:"#f0ece6",transition:"background 0.3s",cursor:"default"}}
+                onMouseEnter={e=>e.currentTarget.style.background="#e8e4de"}
+                onMouseLeave={e=>e.currentTarget.style.background="#f0ece6"}>
+                <div className="bebas" style={{fontSize:"3.5rem",color:"rgba(0,0,0,0.08)",lineHeight:1,marginBottom:8}}>{item.n}</div>
+                <div className="bebas" style={{fontSize:"1.1rem",letterSpacing:"1px",color:"#1a1208",marginBottom:10}}>{item.t}</div>
+                <p style={{fontSize:"0.9rem",color:"#5a4a30",lineHeight:1.72}}>{item.b}</p>
+              </div>
+            </RevealBox>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── PROJECTS ──────────────────────────────────────────────────────
+function ProjectsSection(){
+  return(
+    <section style={{padding:"96px 52px",background:"#0f0f0d",position:"relative",zIndex:1}}>
+      <div style={{maxWidth:1280,margin:"0 auto"}}>
+        <RevealBox>
+          <p style={{fontFamily:"'DM Mono',monospace",fontSize:"0.68rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:12,display:"flex",alignItems:"center",gap:12}}>
+            <span style={{width:24,height:1,background:"#e8893a",display:"inline-block"}}/>04 — Flagship Project
+          </p>
+          <h2 className="bebas" style={{fontSize:"clamp(3rem,6vw,5.5rem)",lineHeight:0.94,color:"#f0ece6",marginBottom:52}}>
+            Cases <span style={{color:"#e8893a"}}>&amp; Work</span>
+          </h2>
+        </RevealBox>
+        <RevealBox delay={100}>
+          <div className="glass neon-amber" style={{display:"grid",gridTemplateColumns:"1fr 1fr",marginBottom:1}}>
+            <div style={{padding:52,borderRight:"1px solid rgba(232,137,58,0.15)"}}>
+              <p className="mono" style={{fontSize:"0.65rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:14}}>Flagship · AI · SaaS · QA Automation</p>
+              <div className="bebas" style={{fontSize:"3.2rem",letterSpacing:"-0.5px",color:"#f0ece6",lineHeight:0.97,marginBottom:18}}>TestFlow AI</div>
+              <p style={{fontSize:"0.97rem",color:"#9a8870",lineHeight:1.78,marginBottom:28}}>
+                AI-powered QA automation platform built from scratch. Integrates intelligent test management, Kanban bug tracker, AI assistance panel, and ClickUp API. Built solo with React, TypeScript, Vite, Supabase, and Prisma.
+              </p>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:28}}>
+                {["React","TypeScript","Supabase","Prisma","AI","Vercel"].map(t=>(
+                  <span key={t} className="mono" style={{fontSize:"0.65rem",padding:"5px 12px",border:"1px solid rgba(200,96,26,0.22)",color:"#c89258",letterSpacing:"1px",textTransform:"uppercase"}}>{t}</span>
+                ))}
+              </div>
+              <a href="https://testflow-ai.vercel.app/landing" target="_blank" style={{
+                display:"inline-flex",alignItems:"center",gap:8,
+                background:"#c8601a",color:"#fff",
+                fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:"0.9rem",
+                padding:"14px 28px",textDecoration:"none",transition:"all 0.3s"
+              }}>View Live Project ↗</a>
+            </div>
+            <div style={{padding:52,background:"linear-gradient(140deg,rgba(200,96,26,0.07),rgba(0,0,0,0))",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:28}}>
+                  <span style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",boxShadow:"0 0 9px #22c55e",animation:"blink 2s infinite"}}/>
+                  <span className="mono" style={{fontSize:"0.65rem",letterSpacing:"1.5px",textTransform:"uppercase",color:"#9a8870"}}>Live on Vercel</span>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+                  {[["AI","Powered Core"],["v2","Current Build"],["TS","TypeScript"],["∞","Scalable"]].map(([val,sub],i)=>(
+                    <div key={i}>
+                      <div className="bebas" style={{fontSize:"2.2rem",color:i%2===0?"#e8893a":"#f0ece6"}}>{val}</div>
+                      <div className="mono" style={{fontSize:"0.65rem",color:"#9a8870",letterSpacing:"1px",textTransform:"uppercase",marginTop:4}}>{sub}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p style={{fontSize:"0.95rem",color:"#9a8870",lineHeight:1.7}}>Sole developer &amp; architect. Full-stack from concept to production on Vercel.</p>
+            </div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:1,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(232,137,58,0.15)",borderTop:"none"}}>
+            {[
+              {tag:"Gov · KSA",name:"GEOSA",sub:"Geodetic Database",body:"Selenium automation for General Authority for Survey. CI/CD integration, web & mobile coverage improvement."},
+              {tag:"Gov · KSA",name:"Ministry of Commerce",sub:"Saudi Gov Portal",body:"Full BA lifecycle — SRS, BRD, UML, Agile user stories with MoSCoW. End-to-end QA management."},
+              {tag:"Gov · KSA",name:"SWCC Bwareq",sub:"Saline Water Conv.",body:"QA & BA for Saudi desalination authority. Requirements gathering, UAT coordination, 11-month delivery."},
+            ].map((p,i)=>(
+              <div key={i} className="glass" style={{padding:"38px 30px",transition:"background 0.3s"}}
+                onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}
+                onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.05)"}>
+                <p className="mono" style={{fontSize:"0.62rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:10}}>{p.tag}</p>
+                <div className="bebas" style={{fontSize:"1.5rem",color:"#f0ece6",marginBottom:6}}>{p.name}</div>
+                <p className="mono" style={{fontSize:"0.62rem",color:"#9a8870",marginBottom:14,letterSpacing:"1px",textTransform:"uppercase"}}>{p.sub}</p>
+                <p style={{fontSize:"0.88rem",color:"#7a6050",lineHeight:1.68,marginBottom:16}}>{p.body}</p>
+                <span className="mono" style={{fontSize:"0.65rem",letterSpacing:"2px",textTransform:"uppercase",color:"#e8893a"}}>Explore →</span>
+              </div>
+            ))}
+          </div>
+        </RevealBox>
+      </div>
+    </section>
+  );
+}
+
+// ── EDUCATION ─────────────────────────────────────────────────────
+function EducationSection(){
+  const items=[
+    {icon:"🎓",label:"Education",title:"Bachelor's Degree",sub:"English Commerce — Business Management · Egypt"},
+    {icon:"🏆",label:"Certification",title:"ISTQB Certified",sub:"International Software Testing Qualifications Board"},
+    {icon:"📋",label:"Certification",title:"CAST™ Certified",sub:"Certified Associate Software Tester — ASTQB"},
+    {icon:"💼",label:"Certification",title:"CBAP™ Preparation",sub:"Certified Business Analysis Professional — IIBA"},
+    {icon:"📍",label:"Location",title:"Alexandria, Egypt",sub:"Remote · Open to KSA / UAE relocation"},
+    {icon:"🌍",label:"Regional",title:"KSA · UAE · Egypt",sub:"15+ years GCC government regulatory frameworks"},
+  ];
+  return(
+    <section style={{padding:"96px 52px",background:"#080808",position:"relative",zIndex:1}}>
+      <div style={{maxWidth:1280,margin:"0 auto"}}>
+        <RevealBox>
+          <p style={{fontFamily:"'DM Mono',monospace",fontSize:"0.68rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:12,display:"flex",alignItems:"center",gap:12}}>
+            <span style={{width:24,height:1,background:"#e8893a",display:"inline-block"}}/>05 — Credentials
+          </p>
+          <h2 className="bebas" style={{fontSize:"clamp(3rem,6vw,5.5rem)",lineHeight:0.94,color:"#f0ece6",marginBottom:52}}>
+            Education <span style={{color:"#e8893a"}}>&amp; Certs</span>
+          </h2>
+        </RevealBox>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:1,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(232,137,58,0.15)"}}>
+          {items.map((item,i)=>(
+            <RevealBox key={i} delay={i*60}>
+              <div className="glass" style={{padding:"40px 32px",transition:"background 0.3s"}}
+                onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}
+                onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.05)"}>
+                <div style={{fontSize:"1.8rem",marginBottom:16}}>{item.icon}</div>
+                <p className="mono" style={{fontSize:"0.64rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:8}}>{item.label}</p>
+                <div className="bebas" style={{fontSize:"1.35rem",color:"#f0ece6",letterSpacing:"0.5px",marginBottom:6}}>{item.title}</div>
+                <p style={{fontSize:"0.88rem",color:"#9a8870",lineHeight:1.65}}>{item.sub}</p>
+              </div>
+            </RevealBox>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── CAREER PAGE ───────────────────────────────────────────────────
+function CareerPage({navigate}){
+  return(
+    <>
+      <CareerHero navigate={navigate}/>
+      <ExperienceSection/>
+    </>
+  );
+}
+
+function CareerHero({navigate}){
+  return(
+    <section style={{
+      position:"relative",paddingTop:128,paddingBottom:64,padding:"128px 52px 64px",
+      background:"radial-gradient(ellipse 80% 60% at 50% 0%,#1a0a02 0%,#080808 70%)",
+      overflow:"hidden"
+    }}>
+      <div style={{maxWidth:1000,margin:"0 auto",animation:"fadeUp 0.6s ease both"}}>
+        <p className="mono" style={{fontSize:"0.68rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:12,display:"flex",alignItems:"center",gap:12}}>
+          <span style={{width:24,height:1,background:"#e8893a",display:"inline-block"}}/>03 — Career History
+        </p>
+        <h1 className="bebas" style={{fontSize:"clamp(3.5rem,8vw,7rem)",lineHeight:0.9,letterSpacing:"-1px",color:"#f0ece6"}}>
+          15 Years of<br/><span style={{color:"#e8893a"}}>Software Excellence</span>
+        </h1>
+        <p style={{marginTop:24,fontSize:"1rem",color:"#9a8870",maxWidth:520,lineHeight:1.8}}>
+          A comprehensive record of QA leadership and Business Analysis across government sectors in KSA, UAE, and Egypt — from first line of test code to managing enterprise-scale programs.
+        </p>
+        <div style={{display:"flex",flexWrap:"wrap",gap:14,marginTop:32}}>
+          <button onClick={()=>navigate("profile")} style={{
+            fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:"0.82rem",
+            padding:"12px 24px",border:"1px solid rgba(255,255,255,0.2)",color:"#f0ece6",
+            background:"none",cursor:"pointer",transition:"all 0.3s"
+          }}>← Back to Profile</button>
+          <a href="mailto:waleeedsaied@gmail.com" style={{
+            fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:"0.82rem",
+            padding:"12px 24px",background:"#c8601a",color:"#fff",textDecoration:"none"
+          }}>Book a Call</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExperienceSection(){
+  return(
+    <section style={{padding:"96px 52px",background:"#080808",position:"relative",overflow:"hidden"}}>
+      {/* Animated BG lines */}
+      <div style={{position:"absolute",inset:0,zIndex:0,pointerEvents:"none",overflow:"hidden",opacity:0.3}}>
+        <svg width="100%" height="100%" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none">
+          {[120,320,520,720].map(y=><line key={y} x1="0" y1={y} x2="1440" y2={y} stroke="rgba(200,96,26,0.06)" strokeWidth="1"/>)}
+          {[120,320,520,720].map((y,i)=>(
+            <circle key={i} r="3" fill="rgba(200,96,26,0.5)">
+              <animateMotion dur={`${5+i*2}s`} repeatCount="indefinite" begin={`${i*1.5}s`}
+                path={i%2===0?`M0,${y} L1440,${y}`:`M1440,${y} L0,${y}`}/>
+            </circle>
+          ))}
+        </svg>
+      </div>
+
+      <div style={{maxWidth:1000,margin:"0 auto",position:"relative",zIndex:1}}>
+        <RevealBox>
+          <p className="mono" style={{fontSize:"0.68rem",letterSpacing:"3px",textTransform:"uppercase",color:"#e8893a",marginBottom:12,display:"flex",alignItems:"center",gap:12}}>
+            <span style={{width:24,height:1,background:"#e8893a",display:"inline-block"}}/>03 — Career Timeline
+          </p>
+          <h2 className="bebas" style={{fontSize:"clamp(3rem,6vw,5.5rem)",lineHeight:0.94,color:"#f0ece6",marginBottom:64}}>
+            Work <span style={{color:"#e8893a"}}>Experience</span>
+          </h2>
+        </RevealBox>
+
+        <div style={{paddingLeft:36,position:"relative"}}>
+          {/* Timeline line */}
+          <div style={{position:"absolute",left:10,top:0,bottom:0,width:1,background:"linear-gradient(to bottom,transparent,rgba(200,96,26,0.3) 5%,rgba(200,96,26,0.3) 95%,transparent)"}}/>
+
+          {JOBS.map((job,i)=>(
+            <RevealBox key={i} delay={i*100}>
+              <div style={{position:"relative",borderBottom:i<JOBS.length-1?"1px solid rgba(255,255,255,0.07)":"none",paddingBottom:56,marginBottom:56}}
+                onMouseEnter={e=>{const dot=e.currentTarget.querySelector(".exp-dot");if(dot){dot.style.boxShadow="0 0 0 6px rgba(200,96,26,0.2),0 0 24px rgba(200,96,26,0.6)";}}}
+                onMouseLeave={e=>{const dot=e.currentTarget.querySelector(".exp-dot");if(dot){dot.style.boxShadow="0 0 0 3px rgba(200,96,26,0.15),0 0 12px rgba(200,96,26,0.4)";}}}
+              >
+                {/* Timeline dot */}
+                <div className="exp-dot" style={{
+                  position:"absolute",left:-26,top:6,width:13,height:13,borderRadius:"50%",
+                  background:"#c8601a",transition:"box-shadow 0.3s",
+                  boxShadow:"0 0 0 3px rgba(200,96,26,0.15),0 0 12px rgba(200,96,26,0.4)"
+                }}/>
+
+                <div style={{display:"grid",gridTemplateColumns:"220px 1fr",gap:32}}>
+                  {/* Meta */}
+                  <div>
+                    <p className="mono" style={{fontSize:"0.65rem",letterSpacing:"2px",textTransform:"uppercase",color:"#e8893a",marginBottom:8}}>{job.period}</p>
+                    <p className="bebas" style={{fontSize:"1.4rem",color:"#f0ece6",letterSpacing:"0.5px",lineHeight:1,marginBottom:4,transition:"color 0.3s"}}>{job.co}</p>
+                    <p className="mono" style={{fontSize:"0.6rem",letterSpacing:"1px",textTransform:"uppercase",color:"#e8893a",marginTop:2}}>{job.sub}</p>
+                    <p style={{fontSize:"0.8rem",color:"#9a8870",marginTop:4}}>{job.loc}</p>
+                    {/* Motion SVG */}
+                    <div style={{marginTop:20,opacity:0.65}}>
+                      {i===0 && <CycleGraphic/>}
+                      {i===1 && <PipelineGraphic/>}
+                      {i===2 && <RadarGraphic/>}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div>
+                    <div className="mono" style={{fontSize:"0.65rem",letterSpacing:"1.5px",textTransform:"uppercase",color:"#9a8870",marginBottom:16,display:"flex",alignItems:"center",gap:10}}>
+                      <span style={{display:"inline-block",transition:"transform 0.3s,color 0.3s"}}>→</span>
+                      <span>{job.role}</span>
+                    </div>
+                    {/* 2-col bullets */}
+                    <ul style={{listStyle:"none",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"4px 24px",marginBottom:20}}>
+                      {job.bullets.map((b,bi)=>(
+                        <li key={bi} style={{fontSize:"0.875rem",color:"#b09078",lineHeight:1.68,padding:"3px 0 3px 18px",position:"relative"}}>
+                          <span style={{position:"absolute",left:0,color:"#c8601a",fontSize:"1.05rem",lineHeight:1.45}}>›</span>{b}
+                        </li>
+                      ))}
+                    </ul>
+                    {/* Glass badge strip */}
+                    <div className="glass" style={{padding:"12px 16px",display:"flex",flexWrap:"wrap",gap:8}}>
+                      {job.badges.map(b=>(
+                        <span key={b} className="mono" style={{fontSize:"0.6rem",padding:"4px 10px",border:"1px solid rgba(200,96,26,0.18)",color:"#a07840",letterSpacing:"0.5px",textTransform:"uppercase"}}>{b}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </RevealBox>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── SVG GRAPHICS ──────────────────────────────────────────────────
+function CycleGraphic(){
+  return(
+    <svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="30" stroke="rgba(200,96,26,0.2)" strokeWidth="1" strokeDasharray="4 4"/>
+      <circle cx="40" cy="40" r="20" stroke="rgba(200,96,26,0.35)" strokeWidth="1">
+        <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="40" cy="10" r="4" fill="rgba(200,96,26,0.7)">
+        <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="40" cy="40" r="6" fill="none" stroke="rgba(232,137,58,0.5)" strokeWidth="1.5"/>
+      <text x="40" y="44" textAnchor="middle" fontFamily="DM Mono" fontSize="6" fill="rgba(200,96,26,0.6)" letterSpacing="0.5">QA</text>
+    </svg>
+  );
+}
+function PipelineGraphic(){
+  return(
+    <svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <rect x="4" y="34" width="14" height="10" rx="2" fill="rgba(200,96,26,0.25)" stroke="rgba(200,96,26,0.5)" strokeWidth="1"/>
+      <rect x="32" y="34" width="14" height="10" rx="2" fill="rgba(200,96,26,0.25)" stroke="rgba(200,96,26,0.5)" strokeWidth="1"/>
+      <rect x="60" y="34" width="14" height="10" rx="2" fill="rgba(200,96,26,0.25)" stroke="rgba(200,96,26,0.5)" strokeWidth="1"/>
+      <line x1="18" y1="39" x2="32" y2="39" stroke="rgba(200,96,26,0.4)" strokeWidth="1"/>
+      <line x1="46" y1="39" x2="60" y2="39" stroke="rgba(200,96,26,0.4)" strokeWidth="1"/>
+      <circle r="2.5" fill="rgba(232,137,58,0.8)"><animateMotion dur="2s" repeatCount="indefinite" path="M18,39 L32,39"/></circle>
+      <circle r="2.5" fill="rgba(232,137,58,0.8)"><animateMotion dur="2s" repeatCount="indefinite" begin="1s" path="M46,39 L60,39"/></circle>
+      <text x="11" y="30" textAnchor="middle" fontFamily="DM Mono" fontSize="5" fill="rgba(200,96,26,0.5)">BRD</text>
+      <text x="39" y="30" textAnchor="middle" fontFamily="DM Mono" fontSize="5" fill="rgba(200,96,26,0.5)">SIT</text>
+      <text x="67" y="30" textAnchor="middle" fontFamily="DM Mono" fontSize="5" fill="rgba(200,96,26,0.5)">UAT</text>
+    </svg>
+  );
+}
+function RadarGraphic(){
+  return(
+    <svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="28" stroke="rgba(200,96,26,0.15)" strokeWidth="1"/>
+      <circle cx="40" cy="40" r="18" stroke="rgba(200,96,26,0.2)" strokeWidth="1"/>
+      <circle cx="40" cy="40" r="8" stroke="rgba(200,96,26,0.3)" strokeWidth="1"/>
+      <path d="M40 40 L40 12" stroke="rgba(200,96,26,0.6)" strokeWidth="1.5" strokeLinecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <circle cx="52" cy="22" r="2.5" fill="rgba(200,96,26,0.7)"><animate attributeName="opacity" values="1;0;1" dur="3s" repeatCount="indefinite" begin="0.5s"/></circle>
+      <circle cx="28" cy="55" r="2" fill="rgba(200,96,26,0.5)"><animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="1.2s"/></circle>
+      <circle cx="40" cy="40" r="3" fill="rgba(200,96,26,0.5)"/>
+    </svg>
+  );
+}
+
+// ── FOOTER BAR — Avatar Popup ─────────────────────────────────────
+function FooterBar({avatarOpen,setAvatarOpen,page,navigate}){
+  const popupRef = useRef(null);
+  const [imgHover,setImgHover] = useState(false);
+
+  // Close on outside click or Escape
+  useEffect(()=>{
+    const h=(e)=>{ if(avatarOpen && popupRef.current && !popupRef.current.contains(e.target)) setAvatarOpen(false); };
+    const k=(e)=>{ if(e.key==="Escape") setAvatarOpen(false); };
+    document.addEventListener("mousedown",h);
+    document.addEventListener("keydown",k);
+    return()=>{document.removeEventListener("mousedown",h);document.removeEventListener("keydown",k);};
+  },[avatarOpen]);
+
+  return(
+    <div style={{
+      position:"fixed",bottom:0,left:0,right:0,zIndex:200,
+      background:"rgba(8,8,8,0.95)",backdropFilter:"blur(20px)",
+      borderTop:"1px solid rgba(255,255,255,0.07)",
+      padding:"14px 48px",
+      display:"flex",alignItems:"center",justifyContent:"space-between"
+    }}>
+      {/* Left: brand + certs */}
+      <div style={{display:"flex",alignItems:"center",gap:20}}>
+        <span className="bebas" style={{fontSize:"0.9rem",letterSpacing:"3px",color:"#9a8870"}}>WALEED HASSAN</span>
+        <div style={{display:"flex",gap:10}}>
+          {["ISTQB","CAST™","CBAP™","15+ YRS"].map(c=>(
+            <span key={c} className="mono" style={{fontSize:"0.6rem",padding:"3px 9px",border:"1px solid rgba(200,96,26,0.2)",color:"#8a7050",letterSpacing:"1px"}}>{c}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Center: nav */}
+      <div style={{display:"flex",gap:8}}>
+        {[["profile","Profile"],["career","Experience"]].map(([p,l])=>(
+          <button key={p} onClick={()=>navigate(p)} style={{
+            fontFamily:"'Inter',sans-serif",fontWeight:500,fontSize:"0.82rem",
+            color:page===p?"#e8893a":"rgba(240,236,230,0.45)",
+            background:"none",border:"none",cursor:"pointer",padding:"6px 14px",
+            transition:"color 0.2s"
+          }}>{l}</button>
+        ))}
+      </div>
+
+      {/* Right: Avatar button + popup */}
+      <div style={{position:"relative"}} ref={popupRef}>
+        <button onClick={()=>setAvatarOpen(o=>!o)} style={{
+          width:42,height:42,borderRadius:"50%",overflow:"hidden",
+          border:`2px solid ${avatarOpen?"#e8893a":"rgba(200,96,26,0.35)"}`,
+          cursor:"pointer",padding:0,transition:"border-color 0.3s",
+          boxShadow:avatarOpen?"0 0 16px rgba(200,96,26,0.5)":"none"
+        }}
+          onMouseEnter={()=>setImgHover(true)} onMouseLeave={()=>setImgHover(false)}>
+          <img src={PHOTO} alt="WH" style={{
+            width:"100%",height:"100%",objectFit:"cover",objectPosition:"top",
+            filter:imgHover||avatarOpen?"grayscale(0%) brightness(1)":"grayscale(100%) brightness(0.85)",
+            transition:"filter 0.5s ease"
+          }}/>
+        </button>
+
+        {/* Avatar Popup — spec: 320px, 32px padding, glass-neon */}
+        {avatarOpen && (
+          <div className="glass-dark neon-amber" style={{
+            position:"absolute",bottom:52,right:0,
+            width:320,padding:32,
+            animation:"fadeUp 0.3s ease both",
+            boxShadow:"0 0 40px rgba(200,96,26,0.15),0 24px 72px rgba(0,0,0,0.8)"
+          }}>
+            {/* Header */}
+            <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:24}}>
+              <div style={{width:56,height:56,borderRadius:"50%",overflow:"hidden",border:"2px solid rgba(200,96,26,0.4)",flexShrink:0}}>
+                <img src={PHOTO} alt="WH" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"top"}}/>
+              </div>
+              <div>
+                <p className="bebas" style={{fontSize:"1.3rem",color:"#f0ece6",letterSpacing:"1px",lineHeight:1}}>Waleed Hassan</p>
+                <p className="mono" style={{fontSize:"0.62rem",color:"#e8893a",letterSpacing:"1.5px",textTransform:"uppercase",marginTop:4}}>QA Manager · BA</p>
+                <p style={{fontSize:"0.78rem",color:"#9a8870",marginTop:2}}>Alexandria, Egypt</p>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div style={{borderTop:"1px solid rgba(255,255,255,0.07)",borderBottom:"1px solid rgba(255,255,255,0.07)",padding:"16px 0",marginBottom:20}}>
+              <p className="mono" style={{fontSize:"0.6rem",letterSpacing:"2.5px",textTransform:"uppercase",color:"#9a8870",marginBottom:14}}>QA Quick Stats</p>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+                {[["15+","Years"],["1000s","Tests Run"],["3","Countries"]].map(([val,sub])=>(
+                  <div key={sub} style={{textAlign:"center"}}>
+                    <div className="bebas" style={{fontSize:"1.6rem",color:"#e8893a",lineHeight:1}}>{val}</div>
+                    <p className="mono" style={{fontSize:"0.56rem",color:"#9a8870",letterSpacing:"1px",textTransform:"uppercase",marginTop:3}}>{sub}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contacts */}
+            <div style={{marginBottom:20}}>
+              {[
+                {label:"Email",val:"waleeedsaied@gmail.com",href:"mailto:waleeedsaied@gmail.com"},
+                {label:"Phone",val:"+20 150 116 5507",href:"tel:+201501165507"},
+              ].map(c=>(
+                <div key={c.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
+                  <span className="mono" style={{fontSize:"0.6rem",letterSpacing:"1.5px",textTransform:"uppercase",color:"#6a5840"}}>{c.label}</span>
+                  <a href={c.href} style={{fontSize:"0.8rem",color:"#c89258",textDecoration:"none"}}>{c.val}</a>
+                </div>
+              ))}
+            </div>
+
+            {/* LinkedIn CTA — high-contrast primary orange */}
+            <a href="https://linkedin.com/in/waleed-hassan-459663154" target="_blank" style={{
+              display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+              background:"#c8601a",color:"#fff",
+              fontFamily:"'Inter',sans-serif",fontWeight:700,fontSize:"0.88rem",
+              padding:"13px 20px",textDecoration:"none",
+              boxShadow:"0 0 20px rgba(200,96,26,0.4)",
+              transition:"all 0.3s"
+            }}>
+              🔗 Connect on LinkedIn
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MOUNT ─────────────────────────────────────────────────────────
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
 </body>
 </html>
